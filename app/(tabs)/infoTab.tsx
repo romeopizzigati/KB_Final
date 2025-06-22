@@ -1,23 +1,20 @@
-
+// Imports
+// External
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   ScrollView,
   TouchableOpacity,
+  View,
 } from 'react-native';
 
-// persistent local storage
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// dropdown menu
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Local data persistence #3
 import { Picker } from '@react-native-picker/picker';
-
-// useNavigation to navigate between screens 
-// useFocusEffect to run loadData() every time we're on a specific tab
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import { Edit3, Trash2 } from 'lucide-react-native';
 
-// Import shared components and utility functions
+// Custom
 import { showConfirmation } from '@/components/ShowAlert';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -31,88 +28,66 @@ import {
   getRecentlyAdded,
   getbyCategory
 } from '@/scripts/Functions';
-import { Edit3, Trash2 } from 'lucide-react-native';
 
-// Define navigation stack types
+// Define type for navigation stack and props
 type NavigationStack = {
   InfoIngredient: undefined;
-  editTab: { ingredient: Ingredient };
+  editTab: { ingredient: string }; // editTab expects ingredient data as stringified JSON!!!
 };
-
-// Typed navigation object for this screen
 type Navigator = StackNavigationProp<NavigationStack, 'InfoIngredient'>;
 
-// Main screen component
+
 const infoTab: React.FC = () => {
-  
-  // Stores all ingredients from local storage
+  // Loaded INGREDIENTS from storage
   const [allItems, setAllItems] = useState<Ingredient[]>([]);
-  // Stores the visible (filtered) ingredients
+  // Filtered INGREDIENTS
   const [visibleItems, setVisibleItems] = useState<Ingredient[]>([]);
-  // Current selected filter values
+  // FILTERS' States
   const [chosenCategory, setChosenCategory] = useState<string>('');
   const [chosenLocation, setChosenLocation] = useState<string>('');
   const [chosenPackaging, setChosenPackaging] = useState<string>('');
-  // Active filter mode (e.g., "all", "missing", "recent")
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<string>('all'); // State for filter type (all/recent/missing)
 
-  // Get typed navigation helper
-  const navigation = useNavigation<Navigator>();
+  const navigation = useNavigation<Navigator>(); // Setup navigation
 
-  // Function to load ingredient data from AsyncStorage
+  // Load data from AsyncStorage
   const loadData = async () => {
     try {
       const raw = await AsyncStorage.getItem('ingredients');
-      if (!raw) return;
-
+      if (!raw) return; // If no data, exit
       const parsed: Ingredient[] = JSON.parse(raw);
-      setAllItems(parsed);         // full list of ingredients
-      setVisibleItems(parsed);     // default visible list
+      setAllItems(parsed);
+      setVisibleItems(parsed); // Initially show all
     } catch (err) {
       console.warn('Failed to load items', err);
     }
   };
 
-  // Reload ingredients every time the screen is focused
+  // Fetch ingredients, when table is FOCUSED
   useFocusEffect(
     useCallback(() => {
       loadData();
     }, [])
   );
 
-  // Apply filters whenever filter values or mode change
+  // Whenever filter states change -> APPLY filters 
   useEffect(() => {
     let currentList = allItems;
-
-    // Filter by missing fields: FUNCTION #1 
+    // QUICK ACCESS filters (Incomplete Data and Recently Added)
     if (filter === 'missing') {
       currentList = getMissingData(currentList);
-    }
-    // Filter by most recent additions: FUNCTION #2
-    else if (filter === 'recent') {
+    } else if (filter === 'recent') {
       currentList = getRecentlyAdded(currentList);
     }
+    // Apply CATEGORY, PACKAGING, LOCATION filters
+    if (chosenCategory) currentList = getbyCategory(currentList, chosenCategory);
+    if (chosenPackaging) currentList = getByPackaging(currentList, chosenPackaging);
+    if (chosenLocation) currentList = getByLocation(currentList, chosenLocation);
 
-    // Apply category filter: FUNCTION #3
-    if (chosenCategory) {
-      currentList = getbyCategory(currentList, chosenCategory);
-    }
-
-     // Apply packaging filter: FUNCTION #4
-     if (chosenPackaging) {
-      currentList = getByPackaging(currentList, chosenPackaging);
-    }
-
-    // Apply location filter: FUNCTION #5
-    if (chosenLocation) {
-      currentList = getByLocation(currentList, chosenLocation);
-    }
-
-    // Update the filtered list to render
-    setVisibleItems(currentList);
+    setVisibleItems(currentList); // SET based on choice(s)
   }, [filter, chosenCategory, chosenLocation, chosenPackaging]);
 
-  // Reset all filter states and reload the original list
+  // RESET ALL filters + RELOAD ALL data
   const resetFilters = () => {
     setFilter('all');
     setChosenCategory('');
@@ -121,17 +96,16 @@ const infoTab: React.FC = () => {
     loadData();
   };
 
-  // Navigate to the editTab screen with the selected item (ex modifyIngredient)
+  // EDIT ingredient -> #1 ASK confirmation #2 Navigate to edit screen
   const editIngredient = (item: Ingredient) => {
     showConfirmation(
       'Edit Item',
       `Edit: ${item.name}?`,
-      () => navigation.navigate('editTab', { ingredient: item })
-      // navigate to  editTab // to be created
+      () => navigation.navigate('editTab', { ingredient: JSON.stringify(item) })
     );
   };
 
-  // Delete item from local storage and state (ex removeItem)
+  // DELETE ingredient -> #1 ASK confirmation #2 UPDATE storage and state
   const deleteIngredient = async (item: Ingredient) => {
     showConfirmation(
       'Deleting the Item',
@@ -145,120 +119,95 @@ const infoTab: React.FC = () => {
     );
   };
 
-  // ---- UI ---- 
-  //  JSX Layout
+  // --- UI Implementation --- 
   return (
-    <ThemedView style={styles.container}>
-      {/* Title */}
-      <ThemedText type="title">INFO TAB</ThemedText>
+    <ThemedView style={[styles.container, { paddingHorizontal: 16 }]}>
+      <ThemedText type="title">Ingredient Overview  🥗</ThemedText>
 
-      {/* Filter Section */}
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: 20 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <ThemedView style={styles.content}>
-
-          {/* Filter buttons */}
-          <ThemedView style={styles.buttonContainer}>
-            {/* Recently Added Filter */}
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                filter === 'recent' && styles.secondaryButton,
-                {marginBottom:12}
-              ]}
-              onPress={() => setFilter('recent')}
-              activeOpacity={0.8}
-            >
-              <ThemedText style={styles.buttonText}>Recently Added</ThemedText>
-            </TouchableOpacity>
-
-            {/* Missing Info Filter */}
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                filter === 'missing' && styles.secondaryButton,
-                {marginBottom:12}
-              ]}
-              onPress={() => setFilter('missing')}
-              activeOpacity={0.8}
-            >
-              <ThemedText style={styles.buttonText}>Incomplete Data</ThemedText>
-            </TouchableOpacity>
-
-            {/* Reset all filters */}
-            <TouchableOpacity
-              style={[styles.primaryButton, styles.dangerButton, {marginBottom:12}]}
-              onPress={resetFilters}
-              activeOpacity={0.8}
-            >
-              <ThemedText style={styles.buttonText}>Reset All</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-
-          {/* Category Dropdown */}
-          <ThemedText type="label"> Filter Category:</ThemedText>
-          <Picker
-            selectedValue={chosenCategory}
-            style={styles.picker}
-            onValueChange={setChosenCategory}
-          >
+      {/* Filters section */}
+      <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
+        {/* Category picker */}
+        <View style={{ marginBottom: 12 }}>
+          <ThemedText type="label">Category:</ThemedText>
+          <Picker selectedValue={chosenCategory} onValueChange={setChosenCategory}>
+            <Picker.Item label="All" value="" />
             {Categories.map((opt) => (
               <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
             ))}
           </Picker>
+        </View>
 
-          {/* Location Dropdown */}
-          <ThemedText type="label"> Filter Location:</ThemedText>
-          <Picker
-            selectedValue={chosenLocation}
-            style={styles.picker}
-            onValueChange={setChosenLocation}
-          >
+        {/* Location picker */}
+        <View style={{ marginBottom: 12 }}>
+          <ThemedText type="label">Location:</ThemedText>
+          <Picker selectedValue={chosenLocation} onValueChange={setChosenLocation}>
+            <Picker.Item label="All" value="" />
             {Locations.map((opt) => (
               <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
             ))}
           </Picker>
+        </View>
 
-          {/* Packaging Dropdown */}
-          <ThemedText type="label"> Filter Packaging:</ThemedText>
-          <Picker
-            selectedValue={chosenPackaging}
-            style={styles.picker}
-            onValueChange={setChosenPackaging}
-          >
+        {/* Packaging picker */}
+        <View style={{ marginBottom: 12 }}>
+          <ThemedText type="label">Packaging:</ThemedText>
+          <Picker selectedValue={chosenPackaging} onValueChange={setChosenPackaging}>
+            <Picker.Item label="All" value="" />
             {Packagings.map((opt) => (
               <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
             ))}
           </Picker>
-        </ThemedView>
+        </View>
+
+        {/* Buttons for filters */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { marginVertical: 6 }]}
+            onPress={() => setFilter('recent')}
+          >
+            <ThemedText style={styles.buttonText}>Recently Added</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.primaryButton, { marginVertical: 6 }]}
+            onPress={() => setFilter('missing')}
+          >
+            <ThemedText style={styles.buttonText}>Incomplete Data</ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.dangerButton, { marginVertical: 6 }]}
+            onPress={resetFilters}
+          >
+            <ThemedText style={styles.buttonText}>Reset All</ThemedText>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
-      {/* Display filtered ingredient list (WORK ON THE STYLE!!!) */}
+      {/* Ingredient list */}
       <FlatList
-        data={visibleItems}
-        keyExtractor={(item, index) => `${item.name}-${index}`}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        showsVerticalScrollIndicator={false}
+        data={visibleItems} // Filtered list to display
+        keyExtractor={(item, index) => `${item.name}-${index}`} // Unique key
+        contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => (
-          <ThemedView style={styles.item}>
-            {/* Ingredient details */}
-            <ThemedText style={styles.itemText}>
-              {item.name} | {item.category} | {item.location} | {item.packing}
+          <ThemedView style={[styles.item, { marginBottom: 12 }]}>
+            {/* Ingredient info */}
+            <ThemedText style={styles.itemTitle}>
+              {item.name} ({item.category}) — {item.location}
+            </ThemedText>
+            <ThemedText style={styles.itemSubText}>
+              Packaging: {item.packing || 'N/A'}
             </ThemedText>
 
-            {/* Action icons: edit & delete */}
-            <ThemedView style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => editIngredient(item)}>
-             <Edit3 size={32} color="#007bff" style={styles.icon} />
-            </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => deleteIngredient(item)}>
-          <Trash2 size={32} color="#dc3545" style={styles.icon} />
-          </TouchableOpacity>
-        </ThemedView>
+            {/* Edit + delete icons */}
+            <View style={styles.iconContainer}>
+              <TouchableOpacity onPress={() => editIngredient(item)}>
+                <Edit3 size={24} color="#007bff" style={styles.icon} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteIngredient(item)}>
+                <Trash2 size={24} color="#dc3545" style={styles.icon} />
+              </TouchableOpacity>
+            </View>
           </ThemedView>
         )}
       />
@@ -267,4 +216,3 @@ const infoTab: React.FC = () => {
 };
 
 export default infoTab;
-

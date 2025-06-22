@@ -3,6 +3,8 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 
+// Custom hook that chooses color based on light/dark mode
+
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 

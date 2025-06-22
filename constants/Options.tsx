@@ -18,7 +18,7 @@ export const Categories = [
   export const Packagings = [
     { label: "Packaging Type ⬇️", value: "" },
     { label: "Fresh", value: "fresh" },
-    { label: "Canned", value: "canned" },
+    { label: "Confection", value: "confection" },
     { label: "Frozen", value: "frozen" },
   ];
   

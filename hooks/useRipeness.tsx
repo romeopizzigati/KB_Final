@@ -1,17 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 
-export const useRipeness = (initialPackaging: string, initialRipeness: string = "") => {
-  const [packaging, setPackaging] = useState(initialPackaging);
+// Custom hook for managing packaging + ripeness status
+export const useRipeness = (
+  initialPackaging: string,             
+  initialRipeness: string = ""         
+) => {
+  const [packaging, setPackaging] = useState(initialPackaging); 
   const [ripeness, setRipeness] = useState(initialRipeness);
 
+  // Is packaging value of type "fresh"? Recomputes if packaging changes
   const isFresh = useMemo(() => packaging === "fresh", [packaging]);
 
-  // Reset ripeness when the confection type changes to non-fresh
+ // Effect: whenever packaging type changes and it's no longer "fresh", ripeness is reset
   useEffect(() => {
     if (!isFresh) {
-      setRipeness("");
+      setRipeness(""); // Clear ripeness if packaging isn't fresh
     }
-  }, [ripeness, isFresh]);
+  }, [isFresh, ripeness]); 
 
-  return { packaging, setPackaging, ripeness, setRipeness, isFresh };
+  // Return state values + setters + derived fresh status
+  return {
+    packaging,     // Current packaging value
+    setPackaging,  // Setter for packaging
+    ripeness,      // Current ripeness value
+    setRipeness,   // Setter for ripeness
+    isFresh,       // Is the packaging "fresh"?
+  };
 };

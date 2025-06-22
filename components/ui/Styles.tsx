@@ -1,88 +1,111 @@
+import { Theme } from "@/constants/Colors";
 import { StatusBar, StyleSheet } from 'react-native';
 
-import { Theme } from "@/constants/Colors";
-
 export const styles = StyleSheet.create({
-    /* === CONTAINERS === */
+    /* BACKGROUND & MAIN CONTAINERS */
+    /* ENSURES SHARED STYLE(S) ACROSS COMPONENTS */
+
+
+    // Fullscreen background image style
     background: {
-        flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
+        flex: 1, // Fills the entire screen
+        resizeMode: 'cover', // Ensures background image covers space
+        justifyContent: 'center', // Center content vertically
     },
+
+    // Generic container with padding and safe area handling
+    container: {
+        flex: 1,
+        paddingTop: StatusBar.currentHeight || 0, // Top padding for status bar
+        padding: 16,
+        gap: 4, // Vertical spacing between child elements
+        overflow: 'hidden', // Hide any overflowing content
+    },
+
+    // Home screen specific container
     containerHome: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // or 'transparent'
+        alignItems: 'center', // Center items horizontally
+        justifyContent: 'center', // Center items vertically
+        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white overlay
         padding: 20,
     },
-    container: { 
-        flex: 1,
-        paddingTop: StatusBar.currentHeight || 0,
-        padding: 16,
-        gap: 4,
-        overflow: 'hidden',
-    },
+
+    // General content wrapper with horizontal padding
     content: {
         flex: 1,
         paddingLeft: 28,
         paddingRight: 28,
         overflow: 'hidden',
     },
-    switchContainer: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        marginBottom: 10, 
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 20,
+
+    // Modal content container
+    modalContainer: {
+        flex: 1,
+        backgroundColor: Theme.black,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
     /* === TEXT STYLES === */
-    default: {
-        fontSize: 16,
-        lineHeight: 24,
-    },
-    defaultSemiBold: {
-        fontSize: 16,
-        lineHeight: 24,
-        fontWeight: '600',
-    },
+
+    // Main title text style
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         fontFamily: 'Monoton_400Regular',
         lineHeight: 40,
-        textAlign: "center",
+        textAlign: 'center',
+        marginTop: 5,
         marginBottom: 20,
-        marginTop: 5
-    },
-    subtitle: {
-        fontSize: 20,
-        textAlign: "center",
-        marginBottom: 20,
-    },
-    link: {
-        lineHeight: 30,
-        fontSize: 16,
-        color: Theme.link,
-    },
-    label: { 
-        fontSize: 16, 
-        marginBottom: 8,
-        fontFamily: "Futura",
-        textDecorationLine:"underline"
-    },
-    buttonText: { 
-        color: Theme.white, 
-        fontSize: 16, 
-        fontWeight: 'bold', 
-        textAlign: 'center' 
     },
 
-    /* === BUTTONS === */
+    // Subtitle or smaller header style
+    subtitle: {
+        fontSize: 20,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+
+    // Default body text
+    default: {
+        fontSize: 16,
+        lineHeight: 24,
+    },
+
+    // Slightly bolder body text
+    defaultSemiBold: {
+        fontSize: 16,
+        lineHeight: 24,
+        fontWeight: '600',
+    },
+
+    // Label for inputs or small section headings
+    label: {
+        fontSize: 16,
+        marginBottom: 8,
+        fontFamily: "Futura",
+        textDecorationLine: "underline",
+    },
+
+    // Link-style text (e.g. clickable text)
+    link: {
+        fontSize: 16,
+        lineHeight: 30,
+        color: Theme.link,
+    },
+
+    // Text inside buttons
+    buttonText: {
+        color: Theme.white,
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+
+    /* BUTTON STYLES */
+
+    // Main button on home or primary CTA
     getStartedButton: {
         backgroundColor: Theme.primary,
         paddingVertical: 12,
@@ -92,40 +115,52 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
     },
-    primaryButton: { 
-        backgroundColor: Theme.primary, 
-        padding: 12, 
-        borderRadius: 5, 
-        alignItems: 'center', 
-        flex: 1, 
-        marginHorizontal: 5 
-    },
-    dateButton: { 
-        backgroundColor: Theme.primary, 
-        padding: 12, 
-        borderRadius: 5, 
+
+    // Primary action button (e.g. submit, next)
+    primaryButton: {
+        backgroundColor: Theme.primary,
+        padding: 12,
+        borderRadius: 5,
+        flex: 1,
         alignItems: 'center',
-        marginHorizontal: 5 
+        marginHorizontal: 5,
     },
-    secondaryButton: { 
-        backgroundColor: Theme.secondary 
-    },
+
+    // Success action button (e.g. save, confirm)
     successButton: {
         backgroundColor: Theme.success,
         padding: 12,
         borderRadius: 5,
         flex: 1,
-        marginHorizontal: 5,
         alignItems: 'center',
+        marginHorizontal: 5,
     },
+
+    // Button for delete or dangerous action
     dangerButton: {
         backgroundColor: Theme.danger,
         padding: 12,
         borderRadius: 5,
         flex: 1,
-        marginHorizontal: 5,
         alignItems: 'center',
+        marginHorizontal: 5,
     },
+
+    // Button specifically for picking date
+    dateButton: {
+        backgroundColor: Theme.primary,
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+
+    // Optional secondary style button
+    secondaryButton: {
+        backgroundColor: Theme.secondary,
+    },
+
+    // Floating close button (e.g. in modals)
     closeButton: {
         position: 'absolute',
         bottom: 20,
@@ -135,17 +170,16 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
     },
 
-    /* === FORMS & INPUTS === */
-    picker: {
-        backgroundColor: Theme.white,
-        height: 200,
-        paddingHorizontal: 10,
-        marginBottom: 50,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: Theme.green,
-        justifyContent: 'center',
+    // Container for grouping buttons horizontally
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 20,
     },
+
+    /* INPUT & FORM STYLES */
+
+    // Text input field style
     input: {
         backgroundColor: Theme.white,
         height: 50,
@@ -156,10 +190,45 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: Theme.gray,
-        fontFamily: "Futura"
+        fontFamily: "Futura",
     },
 
-    /* === LIST & ITEMS === */
+    // Picker / dropdown field
+    picker: {
+        backgroundColor: Theme.white,
+        height: 200,
+        paddingHorizontal: 10,
+        marginBottom: 50,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Theme.green,
+        justifyContent: 'center',
+    },
+
+    // Switch + label row container
+    switchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+
+    /* LIST ITEM STYLES */
+
+    // Card-like item container
+    item: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 16,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+        flexDirection: 'column',
+    },
+
+    // Alternative item container (smaller border + shadow)
     itemContainer: {
         backgroundColor: Theme.white,
         padding: 15,
@@ -173,33 +242,29 @@ export const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
     },
-    item: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 16,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-        flexDirection: 'column', // better stacking of data
-      },
+
+    // Item title text
     itemTitle: {
         fontSize: 20,
         fontWeight: 'bold',
         color: Theme.black,
     },
+
+    // General item body text
     itemText: {
         fontSize: 16,
         marginBottom: 8,
-      },      
+    },
+
+    // Subtext for secondary info
     itemSubText: {
         fontSize: 14,
         color: Theme.gray,
         marginTop: 4,
         fontWeight: 'bold',
     },
+
+    // Subtext for warning (e.g. expired)
     itemDangerText: {
         fontSize: 14,
         color: Theme.danger,
@@ -207,23 +272,23 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    /* === MODALS & OVERLAYS === */
-    modalContainer: {
-        flex: 1,
-        backgroundColor: Theme.black,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    camera: {
-        width: '100%',
-        height: '100%',
+    /* === ICONS + IMAGES === */
+
+    // Wrapper for grouping icons in item
+    iconContainer: {
+        flexDirection: 'row',
         justifyContent: 'flex-end',
-    },
-    loadingContainer: {
-        alignItems: 'center',
+        gap: 20, // spacing between icons
+        marginTop: 10,
     },
 
-    /* === ICONS & IMAGES === */
+    // Style applied to each icon button
+    icon: {
+        marginHorizontal: 5,
+        padding: 8,
+    },
+
+    // Fullscreen background image
     image: {
         position: 'absolute',
         top: 0,
@@ -233,15 +298,18 @@ export const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    iconContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 20, // use `gap` or `marginRight` on icons if not supported
-        marginTop: 10,
-      },
-    icon: {
-        marginHorizontal: 5,
-        padding: 8
-    },    
-});
 
+    /* CAMERA & LOADING */
+
+    // Camera preview full screen
+    camera: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'flex-end',
+    },
+
+    // Centered loading spinner
+    loadingContainer: {
+        alignItems: 'center',
+    },
+});

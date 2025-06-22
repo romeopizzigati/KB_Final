@@ -1,21 +1,26 @@
+// Imports
+// External
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import React from "react";
 import { Platform } from "react-native";
 
-// Local imports
+// Custom
 import { ThemedView } from "@/components/ThemedView";
 import { styles } from "@/components/ui/Styles";
 import { ThemedText } from './ThemedText';
 
+// Define props for the DatePicker component
 interface DatePickerProps {
-  date: Date;
-  onDateChange: (date: Date) => void;
+  date: Date; // The current selected date
+  onDateChange: (date: Date) => void; // Callback when date is changed
 }
 
+// DatePicker component
 const DatePicker: React.FC<DatePickerProps> = ({ date, onDateChange }) => {
-  // Handles the date change event
+  // Handler for native DateTimePicker change
   const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (selectedDate) {
+      // Call parent-provided function with new date
       onDateChange(selectedDate);
     }
   };
@@ -23,32 +28,34 @@ const DatePicker: React.FC<DatePickerProps> = ({ date, onDateChange }) => {
   return (
     <ThemedView style={{ alignItems: "center", marginBottom: 12 }}>
       {Platform.OS === "web" ? (
-        // Web input fallback
+        // Web platform: use HTML input element 
         <input
           type="date"
-          style={styles.input}
-          value={date.toISOString().split("T")[0]}
+          style={styles.input} 
+          value={date.toISOString().split("T")[0]} // Format date as YYYY-MM-DD
           onChange={(event) => {
+            // When user picks a date...
             const newDate = new Date(event.target.value);
             if (!isNaN(newDate.getTime())) {
+              // ... make sure it's valid
               onDateChange(newDate);
             }
           }}
         />
       ) : (
-        // Native DateTimePicker directly shown (no toggle)
+        // Native platforms (iOS/Android): use native date picker
         <>
-      <ThemedText style={styles.switchContainer}>
-          OPEN CALENDAR ⬇️
-      </ThemedText>
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-          style={{ alignSelf: 'center' }}
-        />
-      </>
+          <ThemedText style={styles.switchContainer}>
+            OPEN CALENDAR ⬇️
+          </ThemedText>
+          <DateTimePicker
+            value={date} // The current date value
+            mode="date" // Show DATE selection (e.g. not time)
+            display="default" // Default OS-specific style
+            onChange={handleDateChange} // Trigger on change
+            style={{ alignSelf: 'center' }} // Center align on screen
+          />
+        </>
       )}
     </ThemedView>
   );

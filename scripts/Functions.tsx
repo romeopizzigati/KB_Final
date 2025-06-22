@@ -16,7 +16,7 @@ export const getEstimatedDate = (estimate: string): string => {
   return estimate ? date.toISOString().split("T")[0] : ""; // we use split "T" to only keep the Date, and not the current time
 };
 
-
+// getting the days until expiration valuing expiration date
 const getDaysUntilExpiration = (expirationDate: string): number => {
   const today = new Date();
   const expDate = new Date(expirationDate);
