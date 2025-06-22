@@ -22,7 +22,7 @@ import { Ingredient } from '@/constants/Ingredient';
 import { Categories, Locations, Packagings, Status } from '@/constants/Options';
 import { useConfectionStatus } from '@/hooks/useConfectionStatus';
 import { useRipeness } from '@/hooks/useRipeness';
-import { getEstimatedDate } from '@/scripts/Functions';
+import { extendExpiry, getEstimatedDate } from '@/scripts/Functions';
 
 const editTab: React.FC = () => {
   const navigation = useNavigation(); // BACK Navigation
@@ -50,9 +50,10 @@ const editTab: React.FC = () => {
     isExact: !!parsedIngredient.expirationDate && !parsedIngredient.expirationDate.includes('day'),
     commonEstimate: parsedIngredient.expirationDate.includes('day') ? parsedIngredient.expirationDate : '',
     expiration: parsedIngredient.expirationDate.includes('day')
-      ? new Date() // default to today if estimate
-      : new Date(parsedIngredient.expirationDate), // parse date if exact
+      ? new Date()
+      : new Date(parsedIngredient.expirationDate)
   });
+  
 
   // Custom hooks
   const { packaging, setPackaging, ripeness, setRipeness, isFresh } = useRipeness(parsedIngredient.packing || '');
@@ -81,8 +82,9 @@ const editTab: React.FC = () => {
         packing: packaging,
         status: ripeness,
         isOpen: packaging === 'confenction' ? isOpen : undefined,
-        expirationDate: updatedExpiration,
+        expirationDate: updatedExpiration
       };
+      
 
       // LOAD existing ingredients
       const stored = await AsyncStorage.getItem('ingredients');
@@ -155,22 +157,41 @@ const editTab: React.FC = () => {
         </Picker>
 
         {/* Packaging picker */}
-        <ThemedText type="label">Packaging:</ThemedText>
-        <Picker selectedValue={packaging} style={styles.picker} onValueChange={setPackaging}>
-          {Packagings.map((p) => (
-            <Picker.Item key={p.value} label={p.label} value={p.value} />
-          ))}
-        </Picker>
+        <Picker
+  selectedValue={packaging}
+  style={styles.picker}
+  onValueChange={(value) => {
+    if (packaging === "fresh" && value === "frozen") {
+      const extended = extendExpiry(form.expiration);
+      setForm({ ...form, expiration: extended });
+    }
+    setPackaging(value);
+  }}
+>
+  {Packagings.map((p) => (
+    <Picker.Item key={p.value} label={p.label} value={p.value} />
+  ))}
+</Picker>
 
         {/* Ripeness picker if fresh */}
         {isFresh && (
           <>
             <ThemedText type="label">Ripeness:</ThemedText>
-            <Picker selectedValue={ripeness} style={styles.picker} onValueChange={setRipeness}>
-              {Status.map((s) => (
-                <Picker.Item key={s.value} label={s.label} value={s.value} />
-              ))}
-            </Picker>
+            <Picker
+  selectedValue={ripeness}
+  style={styles.picker}
+  onValueChange={(value) => {
+    setRipeness(value);
+    setForm((prev) => ({
+      ...prev
+    }));
+  }}
+>
+  {Status.map((s) => (
+    <Picker.Item key={s.value} label={s.label} value={s.value} />
+  ))}
+</Picker>
+
           </>
         )}
 

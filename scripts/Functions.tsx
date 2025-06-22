@@ -26,11 +26,16 @@ const getDaysUntilExpiration = (expirationDate: string): number => {
 
 // 1. Gets ingredients expiring soon  (FILTER IN expiringTab -> uses getDaysUntilExpiration (declared here))
 export const getExpiringSoon = (ingredients: Ingredient[], daysThreshold: number = 3) => {
-  return ingredients.filter(
-    (ingredient) =>
-      ingredient.expirationDate &&
-      getDaysUntilExpiration(ingredient.expirationDate) <= daysThreshold
-  );
+  return ingredients.filter((ingredient) => {
+    const isFrozen = ingredient.packing === "frozen";
+    const daysUntil = getDaysUntilExpiration(ingredient.expirationDate);
+    const isExpiringSoon = daysUntil <= daysThreshold;
+
+    return (
+      (isExpiringSoon || ingredient.status === "ripe" || ingredient.isOpen || needsRipenessCheck(ingredient)) &&
+      (!isFrozen || isExpiringSoon) // exclude frozen unless near expiry
+    );
+  });
 };
 
 export const needsRipenessCheck = (item: Ingredient): boolean => {
@@ -75,4 +80,11 @@ export const getByPackaging = (ingredients: Ingredient[], packing?: string) => {
 // 5. Gets ingredients by location (FILTER #5 IN infoTab)
 export const getByLocation = (ingredients: Ingredient[], location: string) => {
   return ingredients.filter((ingredient) => ingredient.location === location);
+};
+
+// 6. Extends expiration date of 6 months for frozen items
+export const extendExpiry = (currentDate: Date): Date => {
+  const newDate = new Date(currentDate);
+  newDate.setMonth(newDate.getMonth() + 6);
+  return newDate;
 };

@@ -9,7 +9,7 @@ import { Ingredient } from "@/constants/Ingredient"; // Ingredient type definiti
 import { Categories, Locations, Packagings, Status } from "@/constants/Options"; // Dropdown Menus options
 import { useConfectionStatus } from '@/hooks/useConfectionStatus'; // Hook for confection/opened status
 import { useRipeness } from '@/hooks/useRipeness'; // Hook for ripeness status
-import { getEstimatedDate } from "@/scripts/Functions"; // Function to calculate estimated expiration
+import { extendExpiry, getEstimatedDate } from "@/scripts/Functions"; // Function to calculate estimated expiration
 
 // External
 import { Monoton_400Regular, useFonts } from '@expo-google-fonts/monoton'; // Custom font
@@ -106,8 +106,8 @@ const addTab: React.FC = () => {
     status: ripeness,
     isOpen: packaging === "confenction" ? isOpen : undefined,
     expirationDate,
-  });
 
+  });
   // Logic to add ingredient -> #1 validation #2 creation #3 persistence
   const addIngredient = async () => {
     if (!form.name.trim()) {
@@ -176,10 +176,10 @@ const addTab: React.FC = () => {
     <ThemedView style={{ flex: 1, padding: 20 }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Title */}
-        <ThemedText type="title"> Add    Ingredient 🥑 </ThemedText>
+        <ThemedText type="title">Add    Ingredient 🥑 </ThemedText>
 
         {/* Name input */}
-        <ThemedText type="label"> Name:</ThemedText>
+        <ThemedText type="label">Name:</ThemedText>
         <TextInput
           style={styles.input}
           value={form.name}
@@ -188,7 +188,7 @@ const addTab: React.FC = () => {
         />
 
         {/* Label input */}
-        <ThemedText type="label"> Label:</ThemedText>
+        <ThemedText type="label">Label:</ThemedText>
         <TextInput
           style={styles.input}
           value={form.label}
@@ -197,30 +197,55 @@ const addTab: React.FC = () => {
         />
 
         {/* Category picker */}
-        <ThemedText type="label"> Category:</ThemedText>
+        <ThemedText type="label">Category:</ThemedText>
         <Picker selectedValue={form.category} style={styles.picker} onValueChange={(v) => setForm({ ...form, category: v })}>
           {Categories.map((c) => (<Picker.Item key={c.value} label={c.label} value={c.value} />))}
         </Picker>
 
         {/* Location picker */}
-        <ThemedText type="label"> Location:</ThemedText>
+        <ThemedText type="label">Location:</ThemedText>
         <Picker selectedValue={form.location} style={styles.picker} onValueChange={(v) => setForm({ ...form, location: v })}>
           {Locations.map((l) => (<Picker.Item key={l.value} label={l.label} value={l.value} />))}
         </Picker>
 
         {/* Packaging picker */}
-        <ThemedText type="label"> Packaging:</ThemedText>
-        <Picker selectedValue={packaging} style={styles.picker} onValueChange={setPackaging}>
-          {Packagings.map((p) => (<Picker.Item key={p.value} label={p.label} value={p.value} />))}
-        </Picker>
+        <ThemedText type="label">Packaging type:</ThemedText>
+        <Picker
+  selectedValue={packaging}
+  style={styles.picker}
+  onValueChange={(value) => {
+    if (packaging === "fresh" && value === "frozen") {
+      // Extend expiration when switching fresh -> frozen
+      const extended = extendExpiry(form.expiration);
+      setForm({ ...form, expiration: extended });
+    }
+    setPackaging(value);
+  }}
+>
+  {Packagings.map((p) => (
+    <Picker.Item key={p.value} label={p.label} value={p.value} />
+  ))}
+</Picker>
 
         {/* Ripeness picker (if fresh) */}
         {isFresh && (
           <>
             <ThemedText type="label"> Ripeness:</ThemedText>
-            <Picker selectedValue={ripeness} style={styles.picker} onValueChange={setRipeness}>
-              {Status.map((s) => (<Picker.Item key={s.value} label={s.label} value={s.value} />))}
-            </Picker>
+            <Picker
+  selectedValue={ripeness}
+  style={styles.picker}
+  onValueChange={(value) => {
+    setRipeness(value);
+    setForm((prev) => ({
+      ...prev,
+    }));
+  }}
+>
+  {Status.map((s) => (
+    <Picker.Item key={s.value} label={s.label} value={s.value} />
+  ))}
+</Picker>
+
           </>
         )}
 

@@ -122,7 +122,7 @@ const infoTab: React.FC = () => {
   // --- UI Implementation --- 
   return (
     <ThemedView style={[styles.container, { paddingHorizontal: 16 }]}>
-      <ThemedText type="title">Ingredient Overview  🥗</ThemedText>
+      <ThemedText type="title">THE   INGREDIENTS 🥗</ThemedText>
 
       {/* Filters section */}
       <ScrollView showsVerticalScrollIndicator={false} style={{ marginVertical: 12 }}>
