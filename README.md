@@ -47,7 +47,7 @@ The App was developed by **Romeo Pizzigati** AKA **Student: 23027**
 | `ShowAlert` (fn) | `showAlert(title, msg)`, `showConfirmation(title, msg, onConfirm, onCancel)` | none | Utility functions for showing alerts or confirmations, native/web. |
 
 
-## 🌳 COMPONENT TREE  
+## COMPONENT TREE  
 RootLayout
  Stack.Navigator
   index.tsx (That is the home screen, which is shown once at the app start)
@@ -63,7 +63,7 @@ RootLayout
 
       +not-found
 
-## 🔄 CONTROL FLOW & STATE UPDATES  
+## CONTROL FLOW & STATE UPDATES  
 
 Legend:  
 🔵 = callback passed down  
@@ -89,14 +89,14 @@ Legend:
   - 🔵 `handleSave()` → 🟣 updates storage → 🟢 returns to infoTab refreshed  
 
 
-## 📌 UTILITY + HOOKS FLOW  
+## UTILITY & HOOKS FLOW  
 
 - `useRipeness` 🟣 updates `packaging`, auto-clears `ripeness` if not fresh  
 - `useConfectionStatus` 🟣 updates `isOpen`, auto-clears if not confection  
 - `getEstimatedDate`, `getExpiringSoon`, `needsRipenessCheck` power date/ripeness logic  
 
 
-## FUNCTIONALITIES
+## FUNCTIONALITIES
 
 **Persistence**
 Ingredient data persists across app sessions (e.g., stored in local storage / DB).
@@ -126,7 +126,7 @@ Some items can have brands in addition to names.
 Ingredients with ripeness need checking if not checked in 3+ days. 
 ✅ `needsRipenessCheck` + `expiringTab` query filters.
 
-## 🌱 IMPLEMENTATION'S POSSIBILITIES  
+## IMPLEMENTATION'S POSSIBILITIES  
 
 - Add more filters, e.g., by ripeness  
 - Set up push notifications  
